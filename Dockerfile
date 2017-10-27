@@ -1,3 +1,5 @@
+#  Modified to  support LDAP and be usable in the FDAC17 by Audris Mockus
+#
 # Copyright 2014 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +21,18 @@ WORKDIR /deepdream
 
 RUN apt-get -q update && \
   apt-get install --no-install-recommends -y --force-yes -q \
-    build-essential \
+    openssh-server \
+	     lsof sudo \
+		  libssl-dev \
+		  sssd \
+		  sssd-tools \
+		  libnss-sss \
+		  libpam-pwquality \
+		  libpam-sss \
+		  libsss-sudo \
+		  ldap-utils \
+		  vim \
+		  build-essential \
     ca-certificates \
     git \
     python python-pip \
@@ -62,6 +75,15 @@ ENV PYTHONPATH=/deepdream/caffe/distribute/python
 
 EXPOSE 8888
 
-ADD start.sh start.sh
+COPY eecsCA_v3.crt /etc/ssl/ 
+COPY sssd.conf /etc/sssd/ 
+COPY common* /etc/pam.d/ 
+RUN chmod 0600 /etc/sssd/sssd.conf /etc/pam.d/common* 
+RUN if [ ! -d /var/run/sshd ]; then mkdir /var/run/sshd; chmod 0755 /var/run/sshd; fi
+COPY init.sh startsvc.sh startshell.sh notebook.sh startDef.sh /bin/ 
 
-CMD ["./start.sh"]
+ENV NB_USER jovyan
+ENV NB_UID 1000
+ENV HOME /home/$NB_USER
+RUN useradd -m -s /bin/bash -N -u $NB_UID $NB_USER && mkdir $HOME/.ssh && chown -R $NB_USER:users $HOME 
+RUN chown -R $NB_USER:users $HOME && chmod -R og-rwx $HOME/.ssh
