@@ -23,6 +23,7 @@ RUN apt-get -q update && \
   apt-get install --no-install-recommends -y --force-yes -q \
     openssh-server \
 	     lsof sudo \
+		  zsh \
 		  libssl-dev \
 		  sssd \
 		  sssd-tools \
