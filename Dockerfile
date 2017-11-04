@@ -59,6 +59,7 @@ RUN cd caffe && make distribute
 RUN cd caffe/scripts && ./download_model_binary.py ../models/bvlc_googlenet/
 
 RUN pip install protobuf && pip install tornado --upgrade
+RUN pip install numpy --upgrade
 RUN apt-get -q update && \
   apt-get install --no-install-recommends -y --force-yes -q \
     python-jsonschema && \
