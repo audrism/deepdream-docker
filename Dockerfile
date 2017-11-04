@@ -1,23 +1,11 @@
 #  Modified to  support LDAP and be usable in the FDAC17 by Audris Mockus
-#
-# Copyright 2014 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Based on google code
 
 FROM ubuntu:trusty
 
 RUN mkdir /deepdream
 WORKDIR /deepdream
+
 
 RUN apt-get -q update && \
   apt-get install --no-install-recommends -y --force-yes -q \
@@ -35,15 +23,16 @@ RUN apt-get -q update && \
 		  vim \
 		  build-essential \
     ca-certificates \
-    git \
+    git bc \
     python python-pip \
     python-dev libpython-dev \
     python-numpy python-scipy python-imaging \
     ipython ipython-notebook \
     libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev libboost-all-dev \
-    libatlas-base-dev libgflags-dev libgoogle-glog-dev liblmdb-dev protobuf-compiler && \
+    libopenblas-dev libatlas-dev libatlas-base-dev libgflags-dev libgoogle-glog-dev liblmdb-dev protobuf-compiler && \
   apt-get clean && \
   rm /var/lib/apt/lists/*_*
+
 
 # Download and compile Caffe
 RUN git clone https://github.com/BVLC/caffe
@@ -83,6 +72,7 @@ COPY common* /etc/pam.d/
 RUN chmod 0600 /etc/sssd/sssd.conf /etc/pam.d/common* 
 RUN if [ ! -d /var/run/sshd ]; then mkdir /var/run/sshd; chmod 0755 /var/run/sshd; fi
 COPY init.sh startsvc.sh startshell.sh notebook.sh startDef.sh /bin/ 
+RUN ln /dev/null /dev/raw1394
 
 ENV NB_USER jovyan
 ENV NB_UID 1000
